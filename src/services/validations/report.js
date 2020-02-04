@@ -5,7 +5,7 @@ module.exports = {
         body: joi.object({
             project: joi.string().required(),
             platform: joi.string().required(),
-            executionDate: joi.string().required(),
+            executionDate: joi.date().iso().required(),
             report: joi.array().required()
         }).required()
     })

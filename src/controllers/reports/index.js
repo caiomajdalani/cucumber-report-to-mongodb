@@ -1,5 +1,14 @@
 'use strict'
 
+const _mapReport = (services, schemas, moment) => (body) => {
+    return {
+        project: body.project,
+        platform: body.platform,
+        executionDate: +moment(body.executionDate),
+        report: body.report
+    }
+}
+
 module.exports = {
 
 /**
@@ -86,7 +95,7 @@ module.exports = {
  * Create a Report
  * @route POST /reports
  * @group REPORTS - Resource for reports operations.
- * @param {createReport.model} createReport.body.required - Create Payment payload.
+ * @param {createReport.model} createReport.body.required - Create Report payload.
  * @returns {responseReport.model} 201 - Report object with it properties.
  * @returns {Errors.model} 400 - Invalid properties.
  * @returns {Error} 401 - Unauthorized.
@@ -96,7 +105,17 @@ module.exports = {
  */
     create: ({ services, schemas, moment }) => async (request, response) => {
         try {
-            
+            let _mappedReport = await _mapReport(services, schemas, moment)(request.body)
+
+            const { data: dataCreateReport, error: errorCreateReport } = await services.repositories.save(schemas.report, _mappedReport)
+
+            if (dataCreateReport) {
+                const { data: dataFindReport, error: errorFindReport } = await services.repositories.findOne(schemas.report, { _id: dataCreateReport._id })
+                return services.replies.created(response)(dataFindReport)
+            } else {
+                return services.replies.unprocessableEntity(response)(errorCreateReport)
+            }
+
         } catch (error) {
             console.log(`error => `, error)
             return services.replies.internalServerError(response)(`Error.`)
