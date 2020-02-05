@@ -105,6 +105,9 @@ module.exports = {
  */
     create: ({ services, schemas, moment }) => async (request, response) => {
         try {
+
+            // TODO map arrays to send to MySQL API
+
             let _mappedReport = await _mapReport(services, schemas, moment)(request.body)
 
             const { data: dataCreateReport, error: errorCreateReport } = await services.repositories.save(schemas.report, _mappedReport)
